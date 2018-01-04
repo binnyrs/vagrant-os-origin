@@ -16,7 +16,9 @@ Vagrant.configure("2") do |config|
   # boxes at https://vagrantcloud.com/search.
   config.vm.box = BOX_IMAGE
   config.vm.box_check_update = false
-  
+  config.vm.hostname = "origin-master"
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_guest = true
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -68,7 +70,7 @@ Vagrant.configure("2") do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
-  config.vm.provision "shell", inline: <<-SHELL
+  config.vm.provision "provision", type: "shell", inline: <<-SH_PRO
     yum -y update
     yum -y install epel-release
     yum -y install wget git docker golang make gcc zip mercurial krb5-devel bsdtar bc rsync bind-utils file jq tito createrepo openssl gpgme gpgme-devel libassuan libassuan-devel
@@ -76,6 +78,17 @@ Vagrant.configure("2") do |config|
     systemctl daemon-reload && systemctl start docker && systemctl enable docker
     wget https://github.com/openshift/origin/releases/download/v3.7.0/openshift-origin-client-tools-v3.7.0-7ed6862-linux-64bit.tar.gz -O /tmp/oc.tar.gz
     tar -zxvf /tmp/oc.tar.gz --strip-components=1 -C /usr/bin/
-    oc cluster up
-  SHELL
+#    oc cluster up
+  SH_PRO
+
+#  config.vm.provision "start-cluster", type: "shell", inline: <<-SH_UP
+#    IP_ADDR=ip addr show eth1 | grep -Po 'inet \K[\d.]+'
+#    echo ${IP_ADDR}
+    #oc cluster up --public-hostname="`ip addr show eth1 | grep -Po 'inet \K[\d.]+'`"
+#  SH_UP
+
+#  config.vm.provision "stop-cluster", type: "shell", inline: <<-SH_DOWN
+#    oc cluster down
+#  SH_DOWN
+
 end
