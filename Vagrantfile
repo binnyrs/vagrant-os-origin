@@ -2,6 +2,7 @@
 # vi: set ft=ruby :
 
 BOX_IMAGE = "centos/7"
+MASTER_NAME = "origin-master"
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
@@ -17,9 +18,19 @@ Vagrant.configure("2") do |config|
   config.vm.box = BOX_IMAGE
   config.vm.box_check_update = false
   config.vbguest.auto_update = false
-  config.vm.hostname = "origin-master"
+  config.vm.hostname = MASTER_NAME
   config.hostmanager.enabled = true
   config.hostmanager.manage_guest = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.ignore_private_ip = false
+
+  config.hostmanager.ip_resolver = proc do |machine|
+    result = ""
+    machine.communicate.execute("ip addr show eth1") do |type, data|
+      result << data if type == :stdout
+    end
+    (ip = /inet (\d+\.\d+\.\d+\.\d+)/.match(result)) && ip[1]
+  end
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -79,7 +90,7 @@ Vagrant.configure("2") do |config|
     systemctl daemon-reload && systemctl start docker && systemctl enable docker
     wget https://github.com/openshift/origin/releases/download/v3.7.0/openshift-origin-client-tools-v3.7.0-7ed6862-linux-64bit.tar.gz -O /tmp/oc.tar.gz
     tar -zxvf /tmp/oc.tar.gz --strip-components=1 -C /usr/bin/
-#    oc cluster up
+    oc cluster up --public-hostname=#{MASTER_NAME}
   SH_PRO
 
 #  config.vm.provision "start-cluster", type: "shell", inline: <<-SH_UP
