@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  # config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network "public_network", type: "dhcp", :bridge => 'wlp5s0'
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -72,7 +72,8 @@ Vagrant.configure("2") do |config|
     yum -y update
     yum -y install epel-release
     yum -y install wget git docker golang make gcc zip mercurial krb5-devel bsdtar bc rsync bind-utils file jq tito createrepo openssl gpgme gpgme-devel libassuan libassuan-devel
-    systemctl start docker && systemctl enable docker
+    cp -f /vagrant/daemon.json /etc/docker/daemon.json
+    systemctl daemon-reload && systemctl start docker && systemctl enable docker
     wget https://github.com/openshift/origin/releases/download/v3.7.0/openshift-origin-client-tools-v3.7.0-7ed6862-linux-64bit.tar.gz -O /tmp/oc.tar.gz
     tar -zxvf /tmp/oc.tar.gz --strip-components=1 -C /usr/bin/
     oc cluster up
