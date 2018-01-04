@@ -3,6 +3,7 @@
 
 BOX_IMAGE = "centos/7"
 MASTER_NAME = "origin-master"
+BRIDGE_IF = "enp6s0"
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
@@ -50,7 +51,7 @@ Vagrant.configure("2") do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  config.vm.network "public_network", type: "dhcp", :bridge => 'wlp5s0'
+  config.vm.network "public_network", type: "dhcp", :bridge => BRIDGE_IF
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
