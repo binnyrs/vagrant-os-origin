@@ -16,6 +16,7 @@ Vagrant.configure("2") do |config|
   # boxes at https://vagrantcloud.com/search.
   config.vm.box = BOX_IMAGE
   config.vm.box_check_update = false
+  config.vbguest.auto_update = false
   config.vm.hostname = "origin-master"
   config.hostmanager.enabled = true
   config.hostmanager.manage_guest = true
