@@ -99,7 +99,7 @@ EOF
     wget https://github.com/openshift/origin/releases/download/v3.7.0/openshift-origin-client-tools-v3.7.0-7ed6862-linux-64bit.tar.gz -O /tmp/oc.tar.gz
     tar -zxvf /tmp/oc.tar.gz --strip-components=1 -C /usr/bin/
     MASTER_IP=$(hostname -i|cut -f2 -d ' ')
-    oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix=${MASTER_IP}#{ROUTING_SUFFIX}
+    oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix="${MASTER_IP}"#{ROUTING_SUFFIX}
     # oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix="${MASTER_IP}"#{ROUTING_SUFFIX} --metrics=true --service-catalog=true
     cd /vagrant/awx
     git remote update
