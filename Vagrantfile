@@ -94,6 +94,7 @@ Vagrant.configure("2") do |config|
     tar -zxvf /tmp/oc.tar.gz --strip-components=1 -C /usr/bin/
     MASTER_IP=$(hostname -i|cut -f2 -d ' ')
     oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix=$${MASTER_IP}#{ROUTING_SUFFIX}
+    # oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix="${MASTER_IP}"#{ROUTING_SUFFIX} --metrics=true --service-catalog=true
     cd /vagrant/awx
     git remote update
     git pull --ff-only
