@@ -5,7 +5,7 @@ BOX_IMAGE = "centos/7"
 MASTER_NAME = "origin-master"
 #BRIDGE_IF = "enp6s0"
 BRIDGE_IF = "wlp5s0"
-ROUTING_SUFFIX = ".nip.io"
+ROUTING_SUFFIX = ".xip.io"
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
@@ -92,11 +92,9 @@ Vagrant.configure("2") do |config|
     systemctl daemon-reload && systemctl start docker && systemctl enable docker
     wget https://github.com/openshift/origin/releases/download/v3.7.0/openshift-origin-client-tools-v3.7.0-7ed6862-linux-64bit.tar.gz -O /tmp/oc.tar.gz
     tar -zxvf /tmp/oc.tar.gz --strip-components=1 -C /usr/bin/
-    now=$(date)
     MASTER_IP=$(hostname -i|cut -f2 -d ' ')
-    echo "echo ${now}"
-    echo ${MASTER_IP}
-    oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix=$${MASTER_IP}#{ROUTING_SUFFIX}
+    # oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix="${MASTER_IP}"#{ROUTING_SUFFIX} --metrics=true --service-catalog=true
+    oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix="${MASTER_IP}"#{ROUTING_SUFFIX}
     cd /vagrant/awx
     git remote update
     git pull --ff-only
