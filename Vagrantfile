@@ -104,15 +104,4 @@ EOF
     tar -zxvf /tmp/oc.tar.gz --strip-components=1 -C /usr/bin/
     oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix="${MASTER_IP}"#{ROUTING_SUFFIX} --metrics=true --service-catalog=true
   SH_PRO
-
-#  config.vm.provision "start-cluster", type: "shell", inline: <<-SH_UP
-#    IP_ADDR=ip addr show eth1 | grep -Po 'inet \K[\d.]+'
-#    echo ${IP_ADDR}
-    #oc cluster up --public-hostname="`ip addr show eth1 | grep -Po 'inet \K[\d.]+'`"
-#  SH_UP
-
-#  config.vm.provision "stop-cluster", type: "shell", inline: <<-SH_DOWN
-#    oc cluster down
-#  SH_DOWN
-
 end
