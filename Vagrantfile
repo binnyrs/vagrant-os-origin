@@ -6,6 +6,8 @@ MASTER_NAME = "origin-master"
 #BRIDGE_IF = "enp6s0"
 BRIDGE_IF = "wlp5s0"
 ROUTING_SUFFIX = ".xip.io"
+INSECURE_REGISTRY = "172.30.0.0/16"
+
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
@@ -28,10 +30,10 @@ Vagrant.configure("2") do |config|
 
   config.hostmanager.ip_resolver = proc do |machine|
     result = ""
-    machine.communicate.execute("ip addr show eth1") do |type, data|
+    machine.communicate.execute("hostname -I | cut -d ' ' -f 2") do |type, data|
       result << data if type == :stdout
     end
-    (ip = /inet (\d+\.\d+\.\d+\.\d+)/.match(result)) && ip[1]
+    ip = result.split("\n").first[/(\d+\.\d+\.\d+\.\d+)/, 1]
   end
 
   # Disable automatic box update checking. If you disable this, then
@@ -88,12 +90,16 @@ Vagrant.configure("2") do |config|
     yum -y install epel-release
     yum -y update
     yum -y install wget git docker golang make gcc zip mercurial krb5-devel bsdtar bc rsync bind-utils file jq tito createrepo openssl gpgme gpgme-devel libassuan libassuan-devel ansible
-    cp -f /vagrant/daemon.json /etc/docker/daemon.json
+    cat <<EOF | tee /etc/docker/daemon.json
+{
+    "insecure-registries" : [ "#{INSECURE_REGISTRY}" ]
+}
+EOF
     systemctl daemon-reload && systemctl start docker && systemctl enable docker
     wget https://github.com/openshift/origin/releases/download/v3.7.0/openshift-origin-client-tools-v3.7.0-7ed6862-linux-64bit.tar.gz -O /tmp/oc.tar.gz
     tar -zxvf /tmp/oc.tar.gz --strip-components=1 -C /usr/bin/
     MASTER_IP=$(hostname -i|cut -f2 -d ' ')
-    oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix=$${MASTER_IP}#{ROUTING_SUFFIX}
+    oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix=${MASTER_IP}#{ROUTING_SUFFIX}
     # oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix="${MASTER_IP}"#{ROUTING_SUFFIX} --metrics=true --service-catalog=true
     cd /vagrant/awx
     git remote update
