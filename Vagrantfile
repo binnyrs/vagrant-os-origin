@@ -3,7 +3,9 @@
 
 BOX_IMAGE = "centos/7"
 MASTER_NAME = "origin-master"
-BRIDGE_IF = "enp6s0"
+#BRIDGE_IF = "enp6s0"
+BRIDGE_IF = "wlp5s0"
+ROUTING_SUFFIX = ".xip.io"
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
@@ -73,7 +75,7 @@ Vagrant.configure("2") do |config|
   #   vb.gui = true
   #
   #   # Customize the amount of memory on the VM:
-    vb.memory = "3072"
+    vb.memory = "4096"
     vb.cpus = "2"
   end
   #
@@ -84,14 +86,14 @@ Vagrant.configure("2") do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "provision", type: "shell", inline: <<-SH_PRO
-    yum -y update
     yum -y install epel-release
+    yum -y update
     yum -y install wget git docker golang make gcc zip mercurial krb5-devel bsdtar bc rsync bind-utils file jq tito createrepo openssl gpgme gpgme-devel libassuan libassuan-devel
     cp -f /vagrant/daemon.json /etc/docker/daemon.json
     systemctl daemon-reload && systemctl start docker && systemctl enable docker
     wget https://github.com/openshift/origin/releases/download/v3.7.0/openshift-origin-client-tools-v3.7.0-7ed6862-linux-64bit.tar.gz -O /tmp/oc.tar.gz
     tar -zxvf /tmp/oc.tar.gz --strip-components=1 -C /usr/bin/
-    oc cluster up --public-hostname=#{MASTER_NAME}
+    oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix="${MASTER_IP}"#{ROUTING_SUFFIX} --metrics=true --service-catalog=true
   SH_PRO
 
 #  config.vm.provision "start-cluster", type: "shell", inline: <<-SH_UP
