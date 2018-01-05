@@ -6,7 +6,6 @@ MASTER_NAME = "origin-master"
 #BRIDGE_IF = "enp6s0"
 BRIDGE_IF = "wlp5s0"
 ROUTING_SUFFIX = ".xip.io"
-
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
@@ -88,22 +87,17 @@ Vagrant.configure("2") do |config|
   config.vm.provision "provision", type: "shell", inline: <<-SH_PRO
     yum -y install epel-release
     yum -y update
-    yum -y install wget git docker golang make gcc zip mercurial krb5-devel bsdtar bc rsync bind-utils file jq tito createrepo openssl gpgme gpgme-devel libassuan libassuan-devel
+    yum -y install wget git docker golang make gcc zip mercurial krb5-devel bsdtar bc rsync bind-utils file jq tito createrepo openssl gpgme gpgme-devel libassuan libassuan-devel ansible
     cp -f /vagrant/daemon.json /etc/docker/daemon.json
     systemctl daemon-reload && systemctl start docker && systemctl enable docker
     wget https://github.com/openshift/origin/releases/download/v3.7.0/openshift-origin-client-tools-v3.7.0-7ed6862-linux-64bit.tar.gz -O /tmp/oc.tar.gz
     tar -zxvf /tmp/oc.tar.gz --strip-components=1 -C /usr/bin/
-    oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix="${MASTER_IP}"#{ROUTING_SUFFIX} --metrics=true --service-catalog=true
+    MASTER_IP=$(hostname -i|cut -f2 -d ' ')
+    oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix=$${MASTER_IP}#{ROUTING_SUFFIX}
+    cd /vagrant/awx
+    git remote update
+    git pull --ff-only
+    sed -i 's/openshift_host=.*/openshift_host=#{MASTER_NAME}:8443/' installer/inventory
+    ansible-playbook -i installer/inventory installer/install.yml -e openshift_password=developer  -e docker_registry_password=$(oc whoami -t)
   SH_PRO
-
-#  config.vm.provision "start-cluster", type: "shell", inline: <<-SH_UP
-#    IP_ADDR=ip addr show eth1 | grep -Po 'inet \K[\d.]+'
-#    echo ${IP_ADDR}
-    #oc cluster up --public-hostname="`ip addr show eth1 | grep -Po 'inet \K[\d.]+'`"
-#  SH_UP
-
-#  config.vm.provision "stop-cluster", type: "shell", inline: <<-SH_DOWN
-#    oc cluster down
-#  SH_DOWN
-
 end
