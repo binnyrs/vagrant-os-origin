@@ -14,8 +14,8 @@ MEMORY = "4096"
 DISK = "40G"
 
 OS_URL = "https://github.com/openshift/origin/releases/download/"
-OS_VER = "v3.7.0"
-OS_FILE = "openshift-origin-client-tools-v3.7.0-7ed6862-linux-64bit.tar.gz"
+OS_VER = "v3.7.1"
+OS_FILE = "openshift-origin-client-tools-v3.7.1-ab0f056-linux-64bit.tar.gz"
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
