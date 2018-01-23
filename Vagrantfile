@@ -10,12 +10,16 @@ INSECURE_REGISTRY = "172.30.0.0/16"
 
 #MACHINE DETAILS
 CPUS = "2"
-MEMORY = "4096"
+#MEMORY = "4096"
+MEMORY = "2048"
 DISK = "40G"
 
 OS_URL = "https://github.com/openshift/origin/releases/download/"
 OS_VER = "v3.7.1"
 OS_FILE = "openshift-origin-client-tools-v3.7.1-ab0f056-linux-64bit.tar.gz"
+
+ENABLE_METRICS = "true"
+ENABLE_SERVICE_CATALOG = "true"
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
@@ -104,14 +108,14 @@ Vagrant.configure("2") do |config|
 }
 EOF
     systemctl daemon-reload && systemctl start docker && systemctl enable docker
-    if [ ! -f /tmp/"${OS_FILE}" ]
+    if [ ! -f /tmp/"#{OS_FILE}" ]
     then
-      wget "${OS_URL}/${OS_VER}/${OS_FILE}" -O /tmp/"${OS_FILE}"
-      tar -zxvf /tmp/oc.tar.gz --strip-components=1 -C /usr/bin/
+      wget "#{OS_URL}/#{OS_VER}/#{OS_FILE}" -O /tmp/"#{OS_FILE}"
+      tar -zxvf /tmp/"#{OS_FILE}" --strip-components=1 -C /usr/bin/
     else
       oc cluster down
     fi
     MASTER_IP=$(hostname -i|cut -f2 -d ' ')
-    oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix="${MASTER_IP}"#{ROUTING_SUFFIX} --metrics=true --service-catalog=true
+    oc cluster up --public-hostname=#{MASTER_NAME} --routing-suffix="${MASTER_IP}"#{ROUTING_SUFFIX} --metrics=#{ENABLE_METRICS} --service-catalog=#{ENABLE_SERVICE_CATALOG}
   SH_PRO
 end
